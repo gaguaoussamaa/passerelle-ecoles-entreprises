@@ -18,6 +18,14 @@
                     <a href="{{ route('ecole.promotions') }}">Promotions</a>
                     <a href="{{ route('ecole.etudiants') }}">Étudiants</a>
                     <a href="{{ route('ecole.tuteurs') }}">Tuteurs</a>
+                    <a href="{{ route('ecole.partenaires') }}">Partenaires</a>
+                    <a href="{{ route('ecole.offres') }}">Offres reçues</a>
+                @endif
+                @if (auth()->user()->role === 'entreprise')
+                    <a href="{{ route('entreprise.offres') }}">Mes offres</a>
+                @endif
+                @if (auth()->user()->role === 'etudiant')
+                    <a href="{{ route('etudiant.offres') }}">Offres</a>
                 @endif
             </nav>
             <div class="session">

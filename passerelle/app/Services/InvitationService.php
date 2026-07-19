@@ -68,6 +68,11 @@ class InvitationService
                 $compte->etudiant->update(['statut_scolarite' => 'actif']);
             }
 
+            if ($compte->role === 'entreprise') {           // RG-47 : partenariats en attente → actifs
+                \App\Models\Partenariat::where('entreprise_id', $compte->id)
+                    ->where('statut', 'en_attente')->update(['statut' => 'actif']);
+            }
+
             JournalAudit::tracer('compte_active', 'compte', $compte->id, $compte->id);
 
             return $compte;
