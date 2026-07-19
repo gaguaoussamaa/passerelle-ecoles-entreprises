@@ -23,8 +23,14 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
+        <!-- Les tests s'exécutent sur MySQL (base dédiée) : les contraintes
+             CHECK, unicités et clés étrangères du MPD font partie du
+             comportement testé — SQLite ne les reproduirait pas. -->
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_HOST" value="mysql"/>
+        <env name="DB_DATABASE" value="passerelle_test"/>
+        <env name="DB_USERNAME" value="passerelle"/>
+        <env name="DB_PASSWORD" value="passerelle-dev"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

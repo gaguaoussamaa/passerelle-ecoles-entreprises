@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => \App\Http\Middleware\VerifierRole::class,
+            'acces' => \App\Http\Middleware\VerifierAcces::class,
+        ]);
+        $middleware->redirectGuestsTo(fn () => route('connexion'));
+        $middleware->redirectUsersTo(fn () => route('tableau-de-bord'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

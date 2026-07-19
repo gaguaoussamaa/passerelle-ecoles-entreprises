@@ -1,0 +1,79 @@
+/* Passerelle — feuille de style unique, sobre, sans chaîne de build (ENF-06). */
+:root {
+    --bleu: #1f3864;
+    --bleu-clair: #eef2f9;
+    --gris: #5c6470;
+    --bord: #d7dce4;
+    --fond: #f6f7f9;
+    --blanc: #ffffff;
+    --vert: #1c7c43;
+    --rouge: #b3261e;
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--fond);
+    color: #1c2430;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.entete { background: var(--bleu); color: var(--blanc); }
+.entete-int {
+    max-width: 1080px; margin: 0 auto; padding: 0.6rem 1rem;
+    display: flex; align-items: center; gap: 1.2rem;
+}
+.marque { font-weight: 700; font-size: 1.25rem; letter-spacing: 0.5px; }
+.nav a { color: var(--blanc); text-decoration: none; margin-right: 0.8rem; opacity: 0.9; }
+.nav a:hover { opacity: 1; text-decoration: underline; }
+.session { margin-left: auto; display: flex; align-items: center; gap: 0.7rem; font-size: 0.9rem; }
+.pastille {
+    background: rgba(255,255,255,0.18); padding: 0.15rem 0.6rem;
+    border-radius: 999px; text-transform: capitalize; font-size: 0.8rem;
+}
+.courriel { opacity: 0.85; }
+button.lien {
+    background: none; border: none; color: var(--blanc);
+    text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0;
+}
+
+.contenu { flex: 1; max-width: 1080px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+h1 { color: var(--bleu); margin: 0.4rem 0 0.2rem; font-size: 1.5rem; }
+.sous-titre { color: var(--gris); margin-top: 0.2rem; }
+
+.carte {
+    background: var(--blanc); border: 1px solid var(--bord);
+    border-radius: 8px; padding: 1.2rem 1.4rem; margin-top: 1rem;
+}
+.carte-etroite { max-width: 430px; margin: 3rem auto; }
+
+label { display: block; margin: 0.9rem 0 0.25rem; font-weight: 600; font-size: 0.92rem; }
+input, select, textarea {
+    width: 100%; padding: 0.55rem 0.7rem; border: 1px solid var(--bord);
+    border-radius: 6px; font-size: 1rem; background: var(--blanc);
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--bleu); border-color: var(--bleu); }
+
+.bouton {
+    margin-top: 1.2rem; width: 100%; background: var(--bleu); color: var(--blanc);
+    border: none; padding: 0.65rem 1rem; border-radius: 6px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+}
+.bouton:hover { filter: brightness(1.1); }
+
+.message { border-radius: 6px; padding: 0.7rem 1rem; margin: 0.8rem 0; font-size: 0.95rem; }
+.message-succes { background: #e7f4ec; color: var(--vert); border: 1px solid #bfe3cd; }
+.message-erreur { background: #fdecea; color: var(--rouge); border: 1px solid #f5c6c2; }
+
+.grille-cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.compteur { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.chiffre { font-size: 1.9rem; font-weight: 700; color: var(--bleu); }
+.a-venir { color: var(--gris); font-size: 0.8rem; }
+
+.pied {
+    text-align: center; color: var(--gris); font-size: 0.8rem;
+    padding: 1rem; border-top: 1px solid var(--bord); background: var(--blanc);
+}
