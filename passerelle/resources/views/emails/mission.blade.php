@@ -13,7 +13,8 @@
     <p>La mission ({{ $mission->type }}) de
     <strong>{{ $mission->etudiant->prenom }} {{ $mission->etudiant->nom }}</strong>
     prévue du {{ $mission->date_debut->format('d/m/Y') }} au {{ $mission->date_fin->format('d/m/Y') }}
-    est <strong>annulée</strong> au {{ $mission->date_effet_arret->format('d/m/Y') }}.</p>
+    est <strong>{{ $evenement === 'interrompue' ? 'interrompue' : 'annulée' }}</strong>
+    au {{ $mission->date_effet_arret->format('d/m/Y') }}.</p>
     <p>Motif : {{ $mission->motif_arret }}</p>
     <p>Le dossier est archivé en l'état ; l'étudiant peut de nouveau candidater ou déclarer une mission.</p>
 @endif

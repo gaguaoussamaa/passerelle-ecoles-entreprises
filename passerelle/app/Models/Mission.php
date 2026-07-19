@@ -61,6 +61,37 @@ class Mission extends Model
     /** États où l'étudiant est engagé — bloquent une nouvelle déclaration (RG-30 a contrario). */
     public const EN_COURS = ['en_montage', 'en_contractualisation', 'contractualisee'];
 
+    /**
+     * RG-29 : « active » et « en évaluation » sont calculés à la consultation
+     * depuis les dates — le statut stocké plafonne à « contractualisée ».
+     */
+    public function statutCalcule(): string
+    {
+        if ($this->statut === 'contractualisee') {
+            if (now()->greaterThan($this->date_fin->endOfDay())) {
+                return 'en_evaluation';
+            }
+            if (now()->greaterThanOrEqualTo($this->date_debut->startOfDay())) {
+                return 'active';
+            }
+        }
+
+        return $this->statut;
+    }
+
+    public function libelleStatutCalcule(): string
+    {
+        return ['en_montage' => 'en montage', 'en_contractualisation' => 'en contractualisation',
+            'contractualisee' => 'contractualisée (à venir)', 'active' => 'active',
+            'en_evaluation' => 'en évaluation', 'cloturee' => 'clôturée',
+            'annulee' => 'annulée', 'interrompue' => 'interrompue'][$this->statutCalcule()] ?? $this->statutCalcule();
+    }
+
+    public function signalements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Signalement::class, 'mission_id');
+    }
+
     public function versionsConvention(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionConvention::class, 'mission_id');

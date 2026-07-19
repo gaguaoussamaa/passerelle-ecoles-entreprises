@@ -43,7 +43,7 @@ class EcoleSeeder extends Seeder
         $this->etudiant($pM2, 'Benali', 'Mehdi', 'mehdi.benali@etu-inl.demo', 'actif', avecMdp: true);
         $this->etudiant($pM2, 'Moreau', 'Léa', 'lea.moreau@etu-inl.demo', 'invite');
         $this->etudiant($pM2, 'Garcia', 'Thomas', 'thomas.garcia@etu-inl.demo', 'sorti');
-        $this->etudiant($pM2, 'Nguyen', 'Linh', 'linh.nguyen@etu-inl.demo', 'actif');
+        $this->etudiant($pM2, 'Nguyen', 'Linh', 'linh.nguyen@etu-inl.demo', 'actif', avecMdp: true);  // protagoniste du suivi
         // BTS Compta et Bachelor MKT — preuve du ciblage par formation
         $this->etudiant($pBts, 'Simon', 'Paul', 'paul.simon@etu-inl.demo', 'actif');
         $this->etudiant($pBts, 'Dubois', 'Camille', 'camille.dubois@etu-inl.demo', 'actif');

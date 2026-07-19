@@ -24,10 +24,25 @@ class MissionController extends Controller
         return view('entreprise.missions.index', [
             'missions' => $this->miennes()->with([
                 'etudiant.promotion.formation.etablissement',
-                'tuteurPedagogique', 'tuteurEntreprise',
+                'tuteurPedagogique', 'tuteurEntreprise', 'signalements.traitant',
             ])->latest()->get(),
             'tuteurs' => TuteurEntreprise::where('entreprise_id', auth()->id())->orderBy('nom')->get(),
         ]);
+    }
+
+    /** RG-40 : l'entreprise peut aussi signaler une difficulté. */
+    public function signaler(Request $request, int $id): RedirectResponse
+    {
+        $donnees = $request->validate(['description' => ['required', 'string', 'min:10']]);
+        $mission = $this->miennes()->where('statut', 'contractualisee')->findOrFail($id);
+
+        $signalement = \App\Models\Signalement::create([
+            'mission_id' => $mission->id, 'emetteur_id' => auth()->id(),
+            'description' => $donnees['description'],
+        ]);
+        JournalAudit::tracer('signalement_ouvert', 'signalement', $signalement->id, auth()->id());
+
+        return back()->with('succes', 'Difficulté signalée : le tuteur pédagogique et le responsable sont alertés.');
     }
 
     /** UC-09 : le tuteur en entreprise n'a pas de compte (Should) — simple fiche nominative. */

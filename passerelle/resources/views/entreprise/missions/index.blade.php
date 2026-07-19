@@ -19,17 +19,31 @@
             <p class="sous-titre">{{ $mission->etudiant->promotion->formation->etablissement->nom }} ·
                 {{ $mission->date_debut->format('d/m/Y') }} → {{ $mission->date_fin->format('d/m/Y') }}</p>
             <p>
-                @switch($mission->statut)
+                @switch($mission->statutCalcule())
                     @case('en_montage') <span class="badge badge-orange">en montage</span> @break
                     @case('en_contractualisation') <span class="badge badge-vert">en contractualisation</span> @break
+                    @case('active') <span class="badge badge-vert">active</span> @break
+                    @case('en_evaluation') <span class="badge badge-orange">en évaluation</span> @break
                     @case('annulee') <span class="badge badge-rouge">annulée</span> @break
-                    @default <span class="badge badge-gris">{{ str_replace('_', ' ', $mission->statut) }}</span>
+                    @case('interrompue') <span class="badge badge-rouge">interrompue</span> @break
+                    @default <span class="badge badge-gris">{{ $mission->libelleStatutCalcule() }}</span>
                 @endswitch
                 · Tuteur pédagogique : <strong>{{ $mission->tuteurPedagogique ? $mission->tuteurPedagogique->prenom.' '.$mission->tuteurPedagogique->nom : 'à désigner (par l\'école)' }}</strong>
                 · Tuteur entreprise : <strong>{{ $mission->tuteurEntreprise ? $mission->tuteurEntreprise->prenom.' '.$mission->tuteurEntreprise->nom : 'à désigner' }}</strong>
             </p>
 
             @include('partials.convention', ['mission' => $mission, 'role' => 'entreprise'])
+            @include('partials.signalements', ['mission' => $mission, 'peutTraiter' => false])
+
+            @if ($mission->statut === 'contractualisee')
+                <form method="POST" action="{{ route('entreprise.missions.signaler', $mission->id) }}">
+                    @csrf
+                    <label for="description_{{ $mission->id }}">Signaler une difficulté</label>
+                    <textarea id="description_{{ $mission->id }}" name="description" rows="2" required minlength="10"
+                        placeholder="Décrivez la difficulté rencontrée avec cette mission."></textarea>
+                    <button class="bouton bouton-court bouton-danger">Signaler</button>
+                </form>
+            @endif
 
             @if ($mission->statut === 'en_montage' && ! $mission->tuteur_entreprise_id)
                 <form method="POST" action="{{ route('entreprise.missions.tuteur', $mission->id) }}">

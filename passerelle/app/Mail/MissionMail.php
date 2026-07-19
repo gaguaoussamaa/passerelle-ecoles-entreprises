@@ -13,6 +13,7 @@ class MissionMail extends Mailable
     public const SUJETS = [
         'entreprise_raccordee' => 'une mission vous est rattachée',
         'annulee' => 'mission annulée',
+        'interrompue' => 'mission interrompue',
     ];
 
     public function __construct(

@@ -3,6 +3,10 @@
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ConnexionController;
 use App\Http\Controllers\ConventionController;
+use App\Http\Controllers\JalonController;
+use App\Http\Controllers\SignalementController;
+use App\Http\Controllers\Etudiant\SuiviController as EtudiantSuiviController;
+use App\Http\Controllers\Tuteur\SuiviController as TuteurSuiviController;
 use App\Http\Controllers\Etudiant\ConventionController as EtudiantConventionController;
 use App\Http\Controllers\Tuteur\ConventionController as TuteurConventionController;
 use App\Http\Controllers\Ecole\DeclarationController as EcoleDeclarationController;
@@ -87,9 +91,17 @@ Route::middleware(['auth', 'acces'])->group(function () {
     Route::post('/conventions/{id}/approuver', [ConventionController::class, 'approuver'])->name('conventions.approuver');
     Route::post('/conventions/{id}/annuler', [ConventionController::class, 'annuler'])->name('conventions.annuler');
 
+    // -------- Suivi : rapports sur jalons (dépôt étudiant, lecture parties
+    // école) et traitement des signalements (tuteur/responsable) — RG-39/40
+    Route::post('/jalons/{id}/rapport', [JalonController::class, 'deposer'])->name('jalons.deposer');
+    Route::get('/jalons/{id}/rapport', [JalonController::class, 'rapport'])->name('jalons.rapport');
+    Route::post('/signalements/{id}/prendre', [SignalementController::class, 'prendre'])->name('signalements.prendre');
+    Route::post('/signalements/{id}/clore', [SignalementController::class, 'clore'])->name('signalements.clore');
+
     // --------------------------------------------- Espace tuteur pédagogique
     Route::prefix('tuteur')->middleware('role:tuteur_pedagogique')->name('tuteur.')->group(function () {
         Route::get('/conventions', [TuteurConventionController::class, 'index'])->name('conventions');
+        Route::get('/suivi', [TuteurSuiviController::class, 'index'])->name('suivi');
     });
 
     // ------------------------------------------------- Espace entreprise
@@ -105,6 +117,7 @@ Route::middleware(['auth', 'acces'])->group(function () {
 
         Route::get('/missions', [EntrepriseMissionController::class, 'index'])->name('missions');
         Route::post('/missions/{id}/tuteur', [EntrepriseMissionController::class, 'designerTuteur'])->name('missions.tuteur');
+        Route::post('/missions/{id}/signaler', [EntrepriseMissionController::class, 'signaler'])->name('missions.signaler');
     });
 
     // --------------------------------------------------- Espace étudiant
@@ -115,6 +128,8 @@ Route::middleware(['auth', 'acces'])->group(function () {
             Route::post('/{id}/candidater', [EtudiantCandidatureController::class, 'candidater'])->name('offres.candidater');
         });
         Route::get('/convention', [EtudiantConventionController::class, 'index'])->name('convention');
+        Route::get('/suivi', [EtudiantSuiviController::class, 'index'])->name('suivi');
+        Route::post('/suivi/missions/{id}/signaler', [EtudiantSuiviController::class, 'signaler'])->name('suivi.signaler');
         Route::prefix('declaration')->group(function () {
             Route::get('/', [EtudiantDeclarationController::class, 'index'])->name('declaration');
             Route::post('/', [EtudiantDeclarationController::class, 'soumettre'])->name('declaration.soumettre');

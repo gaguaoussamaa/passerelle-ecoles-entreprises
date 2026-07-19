@@ -33,9 +33,11 @@
                     <a href="{{ route('etudiant.candidatures') }}">Mes candidatures</a>
                     <a href="{{ route('etudiant.declaration') }}">Ma déclaration</a>
                     <a href="{{ route('etudiant.convention') }}">Ma convention</a>
+                    <a href="{{ route('etudiant.suivi') }}">Mon suivi</a>
                 @endif
                 @if (auth()->user()->role === 'tuteur_pedagogique')
                     <a href="{{ route('tuteur.conventions') }}">Conventions</a>
+                    <a href="{{ route('tuteur.suivi') }}">Suivi</a>
                 @endif
             </nav>
             <div class="session">

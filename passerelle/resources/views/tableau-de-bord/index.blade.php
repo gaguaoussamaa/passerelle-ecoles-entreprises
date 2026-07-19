@@ -25,11 +25,15 @@
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Diffusion::where('etablissement_id', $etab->id)->where('statut', 'soumise')->whereHas('offre', fn ($q) => $q->where('statut', 'publiee'))->count() }}</span> <a href="{{ route('ecole.offres') }}">offre(s) à modérer</a></div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Declaration::where('statut', 'soumise')->whereHas('etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count() }}</span> <a href="{{ route('ecole.declarations') }}">déclaration(s) à examiner</a></div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Mission::where('statut', 'en_montage')->whereHas('etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count() }}</span> <a href="{{ route('ecole.missions') }}">mission(s) en montage</a></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Jalon::whereNull('fichier_depose')->whereDate('date_echeance', '<', now())->whereHas('mission', fn ($q) => $q->where('statut', 'contractualisee')->whereHas('etudiant.promotion.formation', fn ($qq) => $qq->where('etablissement_id', $etab->id)))->count() }}</span> <a href="{{ route('ecole.missions') }}">jalon(s) en retard</a>
+                    @php($sigOuverts = \App\Models\Signalement::whereIn('statut', ['ouvert', 'en_cours'])->whereHas('mission.etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count())
+                    @if ($sigOuverts) <span class="a-venir">{{ $sigOuverts }} signalement(s) à traiter</span> @endif</div>
                 @break
             @case('tuteur_pedagogique')
                 @php($aTraiterTuteur = \App\Models\VersionConvention::whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->whereHas('mission', fn ($q) => $q->where('tuteur_pedagogique_id', $compte->id))->get()->filter(fn ($v) => $v->actionAttendueDe('tuteur_pedagogique'))->count())
                 <div class="carte compteur"><span class="chiffre">{{ $aTraiterTuteur }}</span> <a href="{{ route('tuteur.conventions') }}">action(s) de convention attendues</a></div>
-                <div class="carte compteur"><span class="chiffre">0</span> rapport(s) en retard <span class="a-venir">(module suivi à venir)</span></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Jalon::whereNull('fichier_depose')->whereDate('date_echeance', '<', now())->whereHas('mission', fn ($q) => $q->where('tuteur_pedagogique_id', $compte->id)->where('statut', 'contractualisee'))->count() }}</span> <a href="{{ route('tuteur.suivi') }}">jalon(s) en retard</a></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Signalement::whereIn('statut', ['ouvert', 'en_cours'])->whereHas('mission', fn ($q) => $q->where('tuteur_pedagogique_id', $compte->id))->count() }}</span> <a href="{{ route('tuteur.suivi') }}">signalement(s) à traiter</a></div>
                 @break
             @case('etudiant')
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Offre::visiblesPar($profil)->count() }}</span> <a href="{{ route('etudiant.offres') }}">offre(s) visibles</a></div>

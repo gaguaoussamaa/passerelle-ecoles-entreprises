@@ -34,7 +34,7 @@ class MissionController extends ControleurEcole
         $missions = $this->missions()->with([
             'etudiant.promotion.formation', 'entreprise.compte',
             'tuteurPedagogique', 'tuteurEntreprise', 'candidature.offre', 'declaration',
-            'versionsConvention.actions',
+            'versionsConvention.actions', 'jalons', 'signalements.emetteur', 'signalements.traitant',
         ])->latest()->get();
 
         // enseignants rattachés, par formation (E1 UC-09 : blocage explicite si vide)
@@ -104,26 +104,36 @@ class MissionController extends ControleurEcole
         return back()->with('succes', 'Invitation renvoyée (l\'ancien lien est invalidé).');
     }
 
-    /** RG-30 : annulation motivée avant début — dossier archivé, étudiant libéré, parties notifiées. */
+    /**
+     * RG-30 : annulation (avant début) ou interruption (mission active/en évaluation),
+     * motivée avec date d'effet — échéancier arrêté, dossier archivé en l'état,
+     * parties notifiées, étudiant libéré.
+     */
     public function annuler(Request $request, int $id): RedirectResponse
     {
         $donnees = $request->validate([
             'motif_arret' => ['required', 'string', 'min:5'],
             'date_effet_arret' => ['required', 'date'],
         ]);
-        $mission = $this->missions()->whereIn('statut', ['en_montage', 'en_contractualisation'])
+        $mission = $this->missions()->whereIn('statut', ['en_montage', 'en_contractualisation', 'contractualisee'])
             ->with('etudiant.compte', 'entreprise.compte')->findOrFail($id);
 
-        DB::transaction(function () use ($mission, $donnees) {
-            $mission->update([...$donnees, 'statut' => 'annulee']);
-            JournalAudit::tracer('mission_annulee', 'mission', $mission->id, auth()->id(), $donnees['motif_arret']);
+        $interruption = $mission->statutCalcule() !== 'contractualisee';    // déjà commencée (RG-29)
+        $statut = $mission->statut === 'contractualisee' && $interruption ? 'interrompue' : 'annulee';
+
+        DB::transaction(function () use ($mission, $donnees, $statut) {
+            $mission->update([...$donnees, 'statut' => $statut]);
+            $mission->jalons()->whereNull('fichier_depose')->delete();      // échéancier arrêté
+            JournalAudit::tracer('mission_'.$statut, 'mission', $mission->id, auth()->id(), $donnees['motif_arret']);
         });
 
-        Mail::to($mission->etudiant->compte->email)->send(new MissionMail($mission, 'annulee'));
+        Mail::to($mission->etudiant->compte->email)->send(new MissionMail($mission, $statut));
         if ($mission->entreprise->compte->mot_de_passe !== null) {          // partie notifiée si joignable
-            Mail::to($mission->entreprise->compte->email)->send(new MissionMail($mission, 'annulee'));
+            Mail::to($mission->entreprise->compte->email)->send(new MissionMail($mission, $statut));
         }
 
-        return back()->with('succes', 'Mission annulée : dossier archivé, l\'étudiant peut de nouveau candidater ou déclarer.');
+        return back()->with('succes', $statut === 'interrompue'
+            ? 'Mission interrompue : dossier archivé en l\'état (rapports rendus conservés).'
+            : 'Mission annulée : dossier archivé, l\'étudiant peut de nouveau candidater ou déclarer.');
     }
 }
