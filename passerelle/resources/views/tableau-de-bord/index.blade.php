@@ -30,12 +30,15 @@
                 <div class="carte compteur"><span class="chiffre">0</span> rapport(s) en retard <span class="a-venir">(module suivi à venir)</span></div>
                 @break
             @case('etudiant')
-                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Offre::where('statut', 'publiee')->whereHas('diffusions', fn ($q) => $q->where('etablissement_id', $profil->promotion->formation->etablissement_id)->where('statut', 'validee'))->whereHas('promotions', fn ($q) => $q->where('promotions.id', $profil->promotion_id))->count() }}</span> <a href="{{ route('etudiant.offres') }}">offre(s) visibles</a></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Offre::visiblesPar($profil)->count() }}</span> <a href="{{ route('etudiant.offres') }}">offre(s) visibles</a></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Candidature::where('etudiant_id', $compte->id)->whereIn('statut', \App\Models\Candidature::ACTIFS)->count() }}</span> <a href="{{ route('etudiant.candidatures') }}">candidature(s) en cours</a>
+                    @php($retenues = \App\Models\Candidature::where('etudiant_id', $compte->id)->where('statut', 'retenue')->count())
+                    @if ($retenues) <span class="a-venir">{{ $retenues }} retenue(s) — à confirmer</span> @endif</div>
                 <div class="carte compteur"><span class="chiffre">0</span> action(s) sur ma convention <span class="a-venir">(module conventions à venir)</span></div>
                 @break
             @case('entreprise')
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Offre::where('entreprise_id', $compte->id)->where('statut', 'publiee')->count() }}</span> <a href="{{ route('entreprise.offres') }}">offre(s) publiée(s)</a></div>
-                <div class="carte compteur"><span class="chiffre">0</span> candidature(s) reçues <span class="a-venir">(module candidatures à venir)</span></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Candidature::whereHas('offre', fn ($q) => $q->where('entreprise_id', $compte->id))->whereIn('statut', \App\Models\Candidature::EN_EXAMEN)->count() }}</span> <a href="{{ route('entreprise.candidatures') }}">candidature(s) à traiter</a></div>
                 <div class="carte compteur"><span class="chiffre">0</span> convention(s) en attente <span class="a-venir">(module conventions à venir)</span></div>
                 @break
             @case('super_admin')

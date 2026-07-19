@@ -5,7 +5,9 @@ use App\Http\Controllers\Auth\ConnexionController;
 use App\Http\Controllers\Ecole\DiffusionController;
 use App\Http\Controllers\Ecole\EtudiantController;
 use App\Http\Controllers\Ecole\PartenaireController;
+use App\Http\Controllers\Entreprise\CandidatureController as EntrepriseCandidatureController;
 use App\Http\Controllers\Entreprise\OffreController as EntrepriseOffreController;
+use App\Http\Controllers\Etudiant\CandidatureController as EtudiantCandidatureController;
 use App\Http\Controllers\Etudiant\OffreController as EtudiantOffreController;
 use App\Http\Controllers\Ecole\FormationController;
 use App\Http\Controllers\Ecole\PromotionController;
@@ -66,11 +68,27 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::post('/offres', [EntrepriseOffreController::class, 'creer'])->name('offres.creer');
         Route::post('/offres/{id}/retirer', [EntrepriseOffreController::class, 'retirer'])->name('offres.retirer');
         Route::post('/offres/{id}/cloturer', [EntrepriseOffreController::class, 'cloturer'])->name('offres.cloturer');
+
+        Route::get('/candidatures', [EntrepriseCandidatureController::class, 'index'])->name('candidatures');
+        Route::post('/candidatures/{id}/statut', [EntrepriseCandidatureController::class, 'changerStatut'])->name('candidatures.statut');
+        Route::get('/candidatures/{id}/cv', [EntrepriseCandidatureController::class, 'cv'])->name('candidatures.cv');
     });
 
     // --------------------------------------------------- Espace étudiant
-    Route::prefix('offres')->middleware('role:etudiant')->name('etudiant.')->group(function () {
-        Route::get('/', [EtudiantOffreController::class, 'index'])->name('offres');
-        Route::get('/{id}', [EtudiantOffreController::class, 'detail'])->name('offres.detail');
+    Route::middleware('role:etudiant')->name('etudiant.')->group(function () {
+        Route::prefix('offres')->group(function () {
+            Route::get('/', [EtudiantOffreController::class, 'index'])->name('offres');
+            Route::get('/{id}', [EtudiantOffreController::class, 'detail'])->name('offres.detail');
+            Route::post('/{id}/candidater', [EtudiantCandidatureController::class, 'candidater'])->name('offres.candidater');
+        });
+        Route::prefix('candidatures')->group(function () {
+            Route::get('/', [EtudiantCandidatureController::class, 'index'])->name('candidatures');
+            Route::post('/cv', [EtudiantCandidatureController::class, 'deposerCv'])->name('candidatures.cv.deposer');
+            Route::get('/cv', [EtudiantCandidatureController::class, 'telechargerCv'])->name('candidatures.cv');
+            Route::get('/{id}/cv', [EtudiantCandidatureController::class, 'cvCandidature'])->name('candidatures.cv.depose');
+            Route::post('/{id}/retirer', [EtudiantCandidatureController::class, 'retirer'])->name('candidatures.retirer');
+            Route::post('/{id}/confirmer', [EtudiantCandidatureController::class, 'confirmer'])->name('candidatures.confirmer');
+            Route::post('/{id}/decliner', [EtudiantCandidatureController::class, 'decliner'])->name('candidatures.decliner');
+        });
     });
 });

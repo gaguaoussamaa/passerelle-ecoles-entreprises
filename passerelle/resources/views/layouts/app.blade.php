@@ -23,9 +23,11 @@
                 @endif
                 @if (auth()->user()->role === 'entreprise')
                     <a href="{{ route('entreprise.offres') }}">Mes offres</a>
+                    <a href="{{ route('entreprise.candidatures') }}">Candidatures</a>
                 @endif
                 @if (auth()->user()->role === 'etudiant')
                     <a href="{{ route('etudiant.offres') }}">Offres</a>
+                    <a href="{{ route('etudiant.candidatures') }}">Mes candidatures</a>
                 @endif
             </nav>
             <div class="session">

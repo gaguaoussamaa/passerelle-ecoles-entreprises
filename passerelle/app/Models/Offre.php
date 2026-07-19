@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -42,9 +43,27 @@ class Offre extends Model
         return $this->belongsToMany(Promotion::class, 'affectations')->withTimestamps();
     }
 
+    public function candidatures(): HasMany
+    {
+        return $this->hasMany(Candidature::class, 'offre_id');
+    }
+
     /** RG-20 : modifiable/retirable tant qu'aucune école n'a validé. */
     public function modifiable(): bool
     {
         return $this->diffusions()->where('statut', 'validee')->doesntExist();
+    }
+
+    /**
+     * Visibilité étudiante (RG-19) : offre publiée + diffusion VALIDÉE dans
+     * l'école de l'étudiant + affectation à SA promotion. Tout le reste est invisible.
+     */
+    public function scopeVisiblesPar(Builder $query, Etudiant $etudiant): void
+    {
+        $etabId = $etudiant->promotion->formation->etablissement_id;
+
+        $query->where('statut', 'publiee')
+            ->whereHas('diffusions', fn ($q) => $q->where('etablissement_id', $etabId)->where('statut', 'validee'))
+            ->whereHas('promotions', fn ($q) => $q->where('promotions.id', $etudiant->promotion_id));
     }
 }
