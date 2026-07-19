@@ -17,9 +17,13 @@
     <div class="grille-cartes">
         @switch($compte->role)
             @case('responsable')
+                @php($etab = $profil->etablissement)
+                <div class="carte compteur"><span class="chiffre">{{ $etab->formations()->where('archivee', false)->count() }}</span> formation(s) active(s)</div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Promotion::whereHas('formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('archivee', false)->count() }}</span> promotion(s) active(s)</div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etudiant::whereHas('promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('statut_scolarite', 'actif')->count() }}</span> étudiant(s) actif(s)
+                    <span class="a-venir">{{ \App\Models\Etudiant::whereHas('promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('statut_scolarite', 'invite')->count() }} invitation(s) en attente</span></div>
                 <div class="carte compteur"><span class="chiffre">0</span> offre(s) à modérer <span class="a-venir">(module offres à venir)</span></div>
                 <div class="carte compteur"><span class="chiffre">0</span> déclaration(s) à examiner <span class="a-venir">(module missions à venir)</span></div>
-                <div class="carte compteur"><span class="chiffre">0</span> convention(s) en attente <span class="a-venir">(module conventions à venir)</span></div>
                 @break
             @case('tuteur_pedagogique')
                 <div class="carte compteur"><span class="chiffre">0</span> convention(s) à valider <span class="a-venir">(module conventions à venir)</span></div>

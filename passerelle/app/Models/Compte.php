@@ -19,6 +19,9 @@ class Compte extends Authenticatable
 
     protected $fillable = ['email', 'mot_de_passe', 'role', 'actif'];
 
+    /** Miroir du défaut SQL : une instance non rafraîchie reste cohérente. */
+    protected $attributes = ['actif' => true];
+
     protected $hidden = ['mot_de_passe'];
 
     protected function casts(): array

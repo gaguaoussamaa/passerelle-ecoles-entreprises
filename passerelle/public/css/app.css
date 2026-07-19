@@ -77,3 +77,26 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--bleu); bord
     text-align: center; color: var(--gris); font-size: 0.8rem;
     padding: 1rem; border-top: 1px solid var(--bord); background: var(--blanc);
 }
+
+/* --- Tableaux, badges et formulaires de gestion (module école) --- */
+.tableau { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.93rem; }
+.tableau th { text-align: left; color: var(--bleu); border-bottom: 2px solid var(--bord); padding: 0.5rem 0.6rem; }
+.tableau td { border-bottom: 1px solid var(--bord); padding: 0.5rem 0.6rem; vertical-align: middle; }
+.tableau tr:hover td { background: var(--bleu-clair); }
+.ligne-archivee td { color: var(--gris); }
+.badge { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.badge-vert { background: #e7f4ec; color: var(--vert); }
+.badge-orange { background: #fdf3e3; color: #9a6b00; }
+.badge-gris { background: #eceff3; color: var(--gris); }
+.badge-rouge { background: #fdecea; color: var(--rouge); }
+.grille-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; }
+.cases { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; margin: 0.4rem 0 0.2rem; }
+.case { font-weight: 400; display: flex; align-items: center; gap: 0.35rem; margin: 0; }
+.case input { width: auto; }
+.filtres { display: flex; gap: 0.8rem; margin-bottom: 0.6rem; }
+.filtres select { max-width: 320px; }
+.lien-sobre { background: none; border: none; color: var(--bleu); text-decoration: underline; cursor: pointer; padding: 0; font-size: 0.9rem; }
+.bouton-court { width: auto; padding: 0.5rem 1.2rem; margin-top: 0.9rem; }
+.bouton-danger { background: var(--rouge); }
+h2 { color: var(--bleu); font-size: 1.05rem; margin: 0 0 0.3rem; }
+code { background: var(--bleu-clair); padding: 0.1rem 0.35rem; border-radius: 4px; }

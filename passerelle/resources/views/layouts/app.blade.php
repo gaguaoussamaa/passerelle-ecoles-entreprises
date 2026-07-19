@@ -13,6 +13,12 @@
         @auth
             <nav class="nav">
                 <a href="{{ route('tableau-de-bord') }}">Tableau de bord</a>
+                @if (auth()->user()->role === 'responsable')
+                    <a href="{{ route('ecole.formations') }}">Formations</a>
+                    <a href="{{ route('ecole.promotions') }}">Promotions</a>
+                    <a href="{{ route('ecole.etudiants') }}">Étudiants</a>
+                    <a href="{{ route('ecole.tuteurs') }}">Tuteurs</a>
+                @endif
             </nav>
             <div class="session">
                 <span class="pastille">{{ str_replace('_', ' ', auth()->user()->role) }}</span>
