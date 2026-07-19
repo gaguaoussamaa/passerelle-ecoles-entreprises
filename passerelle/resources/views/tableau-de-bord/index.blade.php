@@ -23,7 +23,8 @@
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etudiant::whereHas('promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('statut_scolarite', 'actif')->count() }}</span> étudiant(s) actif(s)
                     <span class="a-venir">{{ \App\Models\Etudiant::whereHas('promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('statut_scolarite', 'invite')->count() }} invitation(s) en attente</span></div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Diffusion::where('etablissement_id', $etab->id)->where('statut', 'soumise')->whereHas('offre', fn ($q) => $q->where('statut', 'publiee'))->count() }}</span> <a href="{{ route('ecole.offres') }}">offre(s) à modérer</a></div>
-                <div class="carte compteur"><span class="chiffre">0</span> déclaration(s) à examiner <span class="a-venir">(module missions à venir)</span></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Declaration::where('statut', 'soumise')->whereHas('etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count() }}</span> <a href="{{ route('ecole.declarations') }}">déclaration(s) à examiner</a></div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Mission::where('statut', 'en_montage')->whereHas('etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count() }}</span> <a href="{{ route('ecole.missions') }}">mission(s) en montage</a></div>
                 @break
             @case('tuteur_pedagogique')
                 <div class="carte compteur"><span class="chiffre">0</span> convention(s) à valider <span class="a-venir">(module conventions à venir)</span></div>

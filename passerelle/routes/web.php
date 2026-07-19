@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ConnexionController;
+use App\Http\Controllers\Ecole\DeclarationController as EcoleDeclarationController;
 use App\Http\Controllers\Ecole\DiffusionController;
 use App\Http\Controllers\Ecole\EtudiantController;
+use App\Http\Controllers\Ecole\MissionController as EcoleMissionController;
 use App\Http\Controllers\Ecole\PartenaireController;
+use App\Http\Controllers\Entreprise\MissionController as EntrepriseMissionController;
+use App\Http\Controllers\Etudiant\DeclarationController as EtudiantDeclarationController;
 use App\Http\Controllers\Entreprise\CandidatureController as EntrepriseCandidatureController;
 use App\Http\Controllers\Entreprise\OffreController as EntrepriseOffreController;
 use App\Http\Controllers\Etudiant\CandidatureController as EtudiantCandidatureController;
@@ -60,6 +64,15 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::get('/offres', [DiffusionController::class, 'index'])->name('offres');
         Route::post('/offres/{id}/valider', [DiffusionController::class, 'valider'])->name('offres.valider');
         Route::post('/offres/{id}/refuser', [DiffusionController::class, 'refuser'])->name('offres.refuser');
+
+        Route::get('/declarations', [EcoleDeclarationController::class, 'index'])->name('declarations');
+        Route::post('/declarations/{id}/valider', [EcoleDeclarationController::class, 'valider'])->name('declarations.valider');
+        Route::post('/declarations/{id}/refuser', [EcoleDeclarationController::class, 'refuser'])->name('declarations.refuser');
+
+        Route::get('/missions', [EcoleMissionController::class, 'index'])->name('missions');
+        Route::post('/missions/{id}/tuteur', [EcoleMissionController::class, 'designerTuteur'])->name('missions.tuteur');
+        Route::post('/missions/{id}/invitation', [EcoleMissionController::class, 'renvoyerInvitation'])->name('missions.invitation');
+        Route::post('/missions/{id}/annuler', [EcoleMissionController::class, 'annuler'])->name('missions.annuler');
     });
 
     // ------------------------------------------------- Espace entreprise
@@ -72,6 +85,9 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::get('/candidatures', [EntrepriseCandidatureController::class, 'index'])->name('candidatures');
         Route::post('/candidatures/{id}/statut', [EntrepriseCandidatureController::class, 'changerStatut'])->name('candidatures.statut');
         Route::get('/candidatures/{id}/cv', [EntrepriseCandidatureController::class, 'cv'])->name('candidatures.cv');
+
+        Route::get('/missions', [EntrepriseMissionController::class, 'index'])->name('missions');
+        Route::post('/missions/{id}/tuteur', [EntrepriseMissionController::class, 'designerTuteur'])->name('missions.tuteur');
     });
 
     // --------------------------------------------------- Espace étudiant
@@ -80,6 +96,11 @@ Route::middleware(['auth', 'acces'])->group(function () {
             Route::get('/', [EtudiantOffreController::class, 'index'])->name('offres');
             Route::get('/{id}', [EtudiantOffreController::class, 'detail'])->name('offres.detail');
             Route::post('/{id}/candidater', [EtudiantCandidatureController::class, 'candidater'])->name('offres.candidater');
+        });
+        Route::prefix('declaration')->group(function () {
+            Route::get('/', [EtudiantDeclarationController::class, 'index'])->name('declaration');
+            Route::post('/', [EtudiantDeclarationController::class, 'soumettre'])->name('declaration.soumettre');
+            Route::post('/abandonner', [EtudiantDeclarationController::class, 'abandonner'])->name('declaration.abandonner');
         });
         Route::prefix('candidatures')->group(function () {
             Route::get('/', [EtudiantCandidatureController::class, 'index'])->name('candidatures');

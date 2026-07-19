@@ -42,4 +42,31 @@ class Mission extends Model
     {
         return $this->belongsTo(Candidature::class, 'candidature_id');
     }
+
+    public function declaration(): BelongsTo
+    {
+        return $this->belongsTo(Declaration::class, 'declaration_id');
+    }
+
+    public function tuteurPedagogique(): BelongsTo
+    {
+        return $this->belongsTo(TuteurPedagogique::class, 'tuteur_pedagogique_id');
+    }
+
+    public function tuteurEntreprise(): BelongsTo
+    {
+        return $this->belongsTo(TuteurEntreprise::class, 'tuteur_entreprise_id');
+    }
+
+    /** États où l'étudiant est engagé — bloquent une nouvelle déclaration (RG-30 a contrario). */
+    public const EN_COURS = ['en_montage', 'en_contractualisation', 'contractualisee'];
+
+    /** RG-28 : les deux tuteurs désignés ⇒ la mission passe « en contractualisation ». */
+    public function contractualiserSiEncadree(): void
+    {
+        if ($this->statut === 'en_montage' && $this->tuteur_pedagogique_id && $this->tuteur_entreprise_id) {
+            $this->update(['statut' => 'en_contractualisation']);
+            JournalAudit::tracer('mission_en_contractualisation', 'mission', $this->id);
+        }
+    }
 }

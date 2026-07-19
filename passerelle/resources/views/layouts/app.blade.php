@@ -20,14 +20,18 @@
                     <a href="{{ route('ecole.tuteurs') }}">Tuteurs</a>
                     <a href="{{ route('ecole.partenaires') }}">Partenaires</a>
                     <a href="{{ route('ecole.offres') }}">Offres reçues</a>
+                    <a href="{{ route('ecole.declarations') }}">Déclarations</a>
+                    <a href="{{ route('ecole.missions') }}">Missions</a>
                 @endif
                 @if (auth()->user()->role === 'entreprise')
                     <a href="{{ route('entreprise.offres') }}">Mes offres</a>
                     <a href="{{ route('entreprise.candidatures') }}">Candidatures</a>
+                    <a href="{{ route('entreprise.missions') }}">Missions</a>
                 @endif
                 @if (auth()->user()->role === 'etudiant')
                     <a href="{{ route('etudiant.offres') }}">Offres</a>
                     <a href="{{ route('etudiant.candidatures') }}">Mes candidatures</a>
+                    <a href="{{ route('etudiant.declaration') }}">Ma déclaration</a>
                 @endif
             </nav>
             <div class="session">
