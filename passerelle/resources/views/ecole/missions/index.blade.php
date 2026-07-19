@@ -57,6 +57,16 @@
                 @endif
             @endif
 
+            @if ($mission->statut === 'en_contractualisation'
+                && $mission->versionsConvention->whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->isEmpty())
+                <form method="POST" action="{{ route('ecole.missions.convention', $mission->id) }}">
+                    @csrf <button class="bouton bouton-court">Générer la convention
+                        ({{ $mission->type === 'stage' ? 'convention de stage' : 'dossier d\'alternance' }})
+                        — v{{ ($mission->versionsConvention->max('numero') ?? 0) + 1 }}</button>
+                </form>
+            @endif
+            @include('partials.convention', ['mission' => $mission, 'role' => 'responsable'])
+
             @if (in_array($mission->statut, ['en_montage', 'en_contractualisation']))
                 <div class="filtres">
                     @if ($mission->declaration_id && $mission->entreprise->compte->mot_de_passe === null)

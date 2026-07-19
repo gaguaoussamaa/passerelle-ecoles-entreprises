@@ -6,6 +6,7 @@ use App\Mail\MissionMail;
 use App\Models\JournalAudit;
 use App\Models\Mission;
 use App\Models\TuteurPedagogique;
+use App\Services\ConventionService;
 use App\Services\InvitationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +18,10 @@ use Illuminate\View\View;
 /** Missions des étudiants de l'école : tuteur pédagogique (UC-09), relance, annulation (RG-30). */
 class MissionController extends ControleurEcole
 {
-    public function __construct(private readonly InvitationService $invitations) {}
+    public function __construct(
+        private readonly InvitationService $invitations,
+        private readonly ConventionService $conventions,
+    ) {}
 
     private function missions(): Builder
     {
@@ -30,6 +34,7 @@ class MissionController extends ControleurEcole
         $missions = $this->missions()->with([
             'etudiant.promotion.formation', 'entreprise.compte',
             'tuteurPedagogique', 'tuteurEntreprise', 'candidature.offre', 'declaration',
+            'versionsConvention.actions',
         ])->latest()->get();
 
         // enseignants rattachés, par formation (E1 UC-09 : blocage explicite si vide)
@@ -60,6 +65,29 @@ class MissionController extends ControleurEcole
         $mission->contractualiserSiEncadree();
 
         return back()->with('succes', 'Tuteur pédagogique désigné.');
+    }
+
+    /** UC-10 : génération de la convention (RG-31 complétude, RG-32 version immuable, RG-45 modèle). */
+    public function genererConvention(int $id): RedirectResponse
+    {
+        $mission = $this->missions()->where('statut', 'en_contractualisation')
+            ->with('entreprise', 'etudiant.promotion.formation.etablissement', 'tuteurPedagogique', 'tuteurEntreprise')
+            ->findOrFail($id);
+
+        if ($mission->versionsConvention()->whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->exists()) {
+            return back()->withErrors(['convention' => 'Une version circule déjà : attendez son issue (validation, refus) avant d\'en générer une nouvelle.']);
+        }
+
+        $manques = $this->conventions->manques($mission);
+        if ($manques !== []) {                                              // RG-31 : liste bloquante
+            return back()->withErrors(['convention' => 'Génération bloquée, données manquantes : '.implode(', ', $manques).'.']);
+        }
+
+        $version = $this->conventions->generer($mission, auth()->user());
+
+        return back()->with('succes', 'Convention v'.$version->numero.' générée ('
+            .($mission->type === 'stage' ? 'convention de stage' : 'dossier d\'alternance')
+            .') — transmise à l\'étudiant pour validation.');
     }
 
     /** A3 UC-08 / TV-17 : relance d'une entreprise qui n'a pas activé son compte (RG-02). */

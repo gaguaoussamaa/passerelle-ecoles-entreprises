@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ConnexionController;
+use App\Http\Controllers\ConventionController;
+use App\Http\Controllers\Etudiant\ConventionController as EtudiantConventionController;
+use App\Http\Controllers\Tuteur\ConventionController as TuteurConventionController;
 use App\Http\Controllers\Ecole\DeclarationController as EcoleDeclarationController;
 use App\Http\Controllers\Ecole\DiffusionController;
 use App\Http\Controllers\Ecole\EtudiantController;
@@ -73,6 +76,20 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::post('/missions/{id}/tuteur', [EcoleMissionController::class, 'designerTuteur'])->name('missions.tuteur');
         Route::post('/missions/{id}/invitation', [EcoleMissionController::class, 'renvoyerInvitation'])->name('missions.invitation');
         Route::post('/missions/{id}/annuler', [EcoleMissionController::class, 'annuler'])->name('missions.annuler');
+        Route::post('/missions/{id}/convention', [EcoleMissionController::class, 'genererConvention'])->name('missions.convention');
+    });
+
+    // ------------------- Conventions : actions des quatre parties (partie
+    // résolue dans le contrôleur ; un tiers obtient 404 — cloisonnement)
+    Route::get('/conventions/{id}/pdf', [ConventionController::class, 'pdf'])->name('conventions.pdf');
+    Route::post('/conventions/{id}/valider', [ConventionController::class, 'valider'])->name('conventions.valider');
+    Route::post('/conventions/{id}/refuser', [ConventionController::class, 'refuser'])->name('conventions.refuser');
+    Route::post('/conventions/{id}/approuver', [ConventionController::class, 'approuver'])->name('conventions.approuver');
+    Route::post('/conventions/{id}/annuler', [ConventionController::class, 'annuler'])->name('conventions.annuler');
+
+    // --------------------------------------------- Espace tuteur pédagogique
+    Route::prefix('tuteur')->middleware('role:tuteur_pedagogique')->name('tuteur.')->group(function () {
+        Route::get('/conventions', [TuteurConventionController::class, 'index'])->name('conventions');
     });
 
     // ------------------------------------------------- Espace entreprise
@@ -97,6 +114,7 @@ Route::middleware(['auth', 'acces'])->group(function () {
             Route::get('/{id}', [EtudiantOffreController::class, 'detail'])->name('offres.detail');
             Route::post('/{id}/candidater', [EtudiantCandidatureController::class, 'candidater'])->name('offres.candidater');
         });
+        Route::get('/convention', [EtudiantConventionController::class, 'index'])->name('convention');
         Route::prefix('declaration')->group(function () {
             Route::get('/', [EtudiantDeclarationController::class, 'index'])->name('declaration');
             Route::post('/', [EtudiantDeclarationController::class, 'soumettre'])->name('declaration.soumettre');

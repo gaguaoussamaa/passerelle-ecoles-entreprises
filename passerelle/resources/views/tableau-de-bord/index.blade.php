@@ -27,7 +27,8 @@
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Mission::where('statut', 'en_montage')->whereHas('etudiant.promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->count() }}</span> <a href="{{ route('ecole.missions') }}">mission(s) en montage</a></div>
                 @break
             @case('tuteur_pedagogique')
-                <div class="carte compteur"><span class="chiffre">0</span> convention(s) à valider <span class="a-venir">(module conventions à venir)</span></div>
+                @php($aTraiterTuteur = \App\Models\VersionConvention::whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->whereHas('mission', fn ($q) => $q->where('tuteur_pedagogique_id', $compte->id))->get()->filter(fn ($v) => $v->actionAttendueDe('tuteur_pedagogique'))->count())
+                <div class="carte compteur"><span class="chiffre">{{ $aTraiterTuteur }}</span> <a href="{{ route('tuteur.conventions') }}">action(s) de convention attendues</a></div>
                 <div class="carte compteur"><span class="chiffre">0</span> rapport(s) en retard <span class="a-venir">(module suivi à venir)</span></div>
                 @break
             @case('etudiant')
@@ -35,12 +36,14 @@
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Candidature::where('etudiant_id', $compte->id)->whereIn('statut', \App\Models\Candidature::ACTIFS)->count() }}</span> <a href="{{ route('etudiant.candidatures') }}">candidature(s) en cours</a>
                     @php($retenues = \App\Models\Candidature::where('etudiant_id', $compte->id)->where('statut', 'retenue')->count())
                     @if ($retenues) <span class="a-venir">{{ $retenues }} retenue(s) — à confirmer</span> @endif</div>
-                <div class="carte compteur"><span class="chiffre">0</span> action(s) sur ma convention <span class="a-venir">(module conventions à venir)</span></div>
+                @php($aTraiterEtu = \App\Models\VersionConvention::whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->whereHas('mission', fn ($q) => $q->where('etudiant_id', $compte->id))->get()->filter(fn ($v) => $v->actionAttendueDe('etudiant'))->count())
+                <div class="carte compteur"><span class="chiffre">{{ $aTraiterEtu }}</span> <a href="{{ route('etudiant.convention') }}">action(s) sur ma convention</a></div>
                 @break
             @case('entreprise')
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Offre::where('entreprise_id', $compte->id)->where('statut', 'publiee')->count() }}</span> <a href="{{ route('entreprise.offres') }}">offre(s) publiée(s)</a></div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Candidature::whereHas('offre', fn ($q) => $q->where('entreprise_id', $compte->id))->whereIn('statut', \App\Models\Candidature::EN_EXAMEN)->count() }}</span> <a href="{{ route('entreprise.candidatures') }}">candidature(s) à traiter</a></div>
-                <div class="carte compteur"><span class="chiffre">0</span> convention(s) en attente <span class="a-venir">(module conventions à venir)</span></div>
+                @php($aTraiterEnt = \App\Models\VersionConvention::whereIn('statut', \App\Models\VersionConvention::EN_CIRCULATION)->whereHas('mission', fn ($q) => $q->where('entreprise_id', $compte->id))->get()->filter(fn ($v) => $v->actionAttendueDe('entreprise'))->count())
+                <div class="carte compteur"><span class="chiffre">{{ $aTraiterEnt }}</span> <a href="{{ route('entreprise.missions') }}">action(s) de convention attendues</a></div>
                 @break
             @case('super_admin')
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etablissement::count() }}</span> établissement(s) actifs</div>

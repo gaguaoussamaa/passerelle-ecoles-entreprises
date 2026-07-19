@@ -29,6 +29,8 @@
                 · Tuteur entreprise : <strong>{{ $mission->tuteurEntreprise ? $mission->tuteurEntreprise->prenom.' '.$mission->tuteurEntreprise->nom : 'à désigner' }}</strong>
             </p>
 
+            @include('partials.convention', ['mission' => $mission, 'role' => 'entreprise'])
+
             @if ($mission->statut === 'en_montage' && ! $mission->tuteur_entreprise_id)
                 <form method="POST" action="{{ route('entreprise.missions.tuteur', $mission->id) }}">
                     @csrf

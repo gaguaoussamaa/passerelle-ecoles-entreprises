@@ -61,6 +61,22 @@ class Mission extends Model
     /** États où l'étudiant est engagé — bloquent une nouvelle déclaration (RG-30 a contrario). */
     public const EN_COURS = ['en_montage', 'en_contractualisation', 'contractualisee'];
 
+    public function versionsConvention(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VersionConvention::class, 'mission_id');
+    }
+
+    public function jalons(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Jalon::class, 'mission_id');
+    }
+
+    /** Version en circulation ou approuvée la plus récente (une seule à la fois). */
+    public function conventionCourante(): ?VersionConvention
+    {
+        return $this->versionsConvention()->latest('numero')->first();
+    }
+
     /** RG-28 : les deux tuteurs désignés ⇒ la mission passe « en contractualisation ». */
     public function contractualiserSiEncadree(): void
     {
