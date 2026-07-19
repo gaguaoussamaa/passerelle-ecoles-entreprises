@@ -70,11 +70,18 @@
             @endif
             @include('partials.convention', ['mission' => $mission, 'role' => 'responsable'])
 
-            @if ($mission->statut === 'contractualisee')
+            @if (in_array($mission->statut, ['contractualisee', 'cloturee', 'interrompue']))
                 <h3>Suivi</h3>
                 @include('partials.jalons', ['mission' => $mission, 'peutDeposer' => false])
             @endif
+            @include('partials.evaluation', ['mission' => $mission, 'peutEvaluer' => false])
             @include('partials.signalements', ['mission' => $mission, 'peutTraiter' => true])
+
+            @if ($mission->statut === 'contractualisee' && $mission->statutCalcule() === 'en_evaluation')
+                <form method="POST" action="{{ route('ecole.missions.cloturer', $mission->id) }}">
+                    @csrf <button class="bouton bouton-court">Clôturer le dossier (RG-42)</button>
+                </form>
+            @endif
 
             @if (in_array($mission->statut, ['en_montage', 'en_contractualisation', 'contractualisee']))
                 <div class="filtres">

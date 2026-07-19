@@ -33,6 +33,7 @@
             </p>
 
             @include('partials.convention', ['mission' => $mission, 'role' => 'entreprise'])
+            @include('partials.evaluation', ['mission' => $mission, 'peutEvaluer' => true, 'criteres' => $criteres])
             @include('partials.signalements', ['mission' => $mission, 'peutTraiter' => false])
 
             @if ($mission->statut === 'contractualisee')

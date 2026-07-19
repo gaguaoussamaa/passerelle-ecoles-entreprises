@@ -92,6 +92,11 @@ class Mission extends Model
         return $this->hasMany(Signalement::class, 'mission_id');
     }
 
+    public function evaluation(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Evaluation::class, 'mission_id');
+    }
+
     public function versionsConvention(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VersionConvention::class, 'mission_id');

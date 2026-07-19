@@ -25,9 +25,40 @@ class MissionController extends Controller
             'missions' => $this->miennes()->with([
                 'etudiant.promotion.formation.etablissement',
                 'tuteurPedagogique', 'tuteurEntreprise', 'signalements.traitant',
+                'evaluation.criteres', 'evaluation.tuteurEntreprise',
             ])->latest()->get(),
             'tuteurs' => TuteurEntreprise::where('entreprise_id', auth()->id())->orderBy('nom')->get(),
+            'criteres' => \App\Models\Critere::orderBy('id')->get(),
         ]);
+    }
+
+    /** RG-41 : grille standard (notes 0..5 + commentaire) par le tuteur en entreprise, mission terminée. */
+    public function evaluer(Request $request, int $id): RedirectResponse
+    {
+        $mission = $this->miennes()->where('statut', 'contractualisee')
+            ->whereDoesntHave('evaluation')->findOrFail($id);
+        abort_if($mission->statutCalcule() !== 'en_evaluation', 404);       // fin de mission seulement
+
+        $criteres = \App\Models\Critere::orderBy('id')->get();
+        $donnees = $request->validate([
+            'commentaire' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['required', 'array'],
+            ...$criteres->mapWithKeys(fn ($c) => ['notes.'.$c->id => ['required', 'integer', 'between:0,5']])->all(),
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($mission, $donnees, $criteres) {
+            $evaluation = \App\Models\Evaluation::create([
+                'mission_id' => $mission->id,
+                'tuteur_entreprise_id' => $mission->tuteur_entreprise_id,   // auteur métier
+                'commentaire' => $donnees['commentaire'] ?? null,
+            ]);
+            $evaluation->criteres()->attach(
+                $criteres->mapWithKeys(fn ($c) => [$c->id => ['note' => $donnees['notes'][$c->id]]])->all()
+            );
+            JournalAudit::tracer('evaluation_remplie', 'evaluation', $evaluation->id, auth()->id());
+        });
+
+        return back()->with('succes', 'Évaluation enregistrée : le responsable peut clôturer le dossier.');
     }
 
     /** RG-40 : l'entreprise peut aussi signaler une difficulté. */

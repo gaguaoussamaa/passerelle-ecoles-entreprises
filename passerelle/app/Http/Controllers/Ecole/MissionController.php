@@ -35,6 +35,7 @@ class MissionController extends ControleurEcole
             'etudiant.promotion.formation', 'entreprise.compte',
             'tuteurPedagogique', 'tuteurEntreprise', 'candidature.offre', 'declaration',
             'versionsConvention.actions', 'jalons', 'signalements.emetteur', 'signalements.traitant',
+            'evaluation.criteres', 'evaluation.tuteurEntreprise',
         ])->latest()->get();
 
         // enseignants rattachés, par formation (E1 UC-09 : blocage explicite si vide)
@@ -102,6 +103,32 @@ class MissionController extends ControleurEcole
         $this->invitations->inviter($mission->entreprise->compte);
 
         return back()->with('succes', 'Invitation renvoyée (l\'ancien lien est invalidé).');
+    }
+
+    /**
+     * RG-42 : la clôture exige une convention approuvée (garantie par l'état
+     * « contractualisée ») et une évaluation remplie ; les jalons non rendus
+     * ne bloquent pas mais sont consignés au dossier. Archivage consultable.
+     */
+    public function cloturer(int $id): RedirectResponse
+    {
+        $mission = $this->missions()->where('statut', 'contractualisee')
+            ->with('evaluation', 'jalons')->findOrFail($id);
+
+        if ($mission->statutCalcule() !== 'en_evaluation') {
+            return back()->withErrors(['cloture' => 'La clôture s\'effectue une fois la mission arrivée à son terme (état « en évaluation »).']);
+        }
+        if (! $mission->evaluation) {                                       // TV-26 : blocage explicite
+            return back()->withErrors(['cloture' => 'Clôture impossible : l\'évaluation du tuteur en entreprise n\'est pas encore remplie (RG-42).']);
+        }
+
+        $manquants = $mission->jalons->whereNull('fichier_depose')->count();
+        $mission->update(['statut' => 'cloturee']);
+        JournalAudit::tracer('mission_cloturee', 'mission', $mission->id, auth()->id(),
+            $manquants > 0 ? $manquants.' jalon(s) non rendu(s) consigné(s) au dossier' : 'dossier complet');
+
+        return back()->with('succes', 'Dossier clôturé et archivé'
+            .($manquants > 0 ? ' — '.$manquants.' jalon(s) non rendu(s) consigné(s).' : '.'));
     }
 
     /**

@@ -81,6 +81,7 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::post('/missions/{id}/invitation', [EcoleMissionController::class, 'renvoyerInvitation'])->name('missions.invitation');
         Route::post('/missions/{id}/annuler', [EcoleMissionController::class, 'annuler'])->name('missions.annuler');
         Route::post('/missions/{id}/convention', [EcoleMissionController::class, 'genererConvention'])->name('missions.convention');
+        Route::post('/missions/{id}/cloturer', [EcoleMissionController::class, 'cloturer'])->name('missions.cloturer');
     });
 
     // ------------------- Conventions : actions des quatre parties (partie
@@ -118,6 +119,7 @@ Route::middleware(['auth', 'acces'])->group(function () {
         Route::get('/missions', [EntrepriseMissionController::class, 'index'])->name('missions');
         Route::post('/missions/{id}/tuteur', [EntrepriseMissionController::class, 'designerTuteur'])->name('missions.tuteur');
         Route::post('/missions/{id}/signaler', [EntrepriseMissionController::class, 'signaler'])->name('missions.signaler');
+        Route::post('/missions/{id}/evaluation', [EntrepriseMissionController::class, 'evaluer'])->name('missions.evaluation');
     });
 
     // --------------------------------------------------- Espace étudiant
