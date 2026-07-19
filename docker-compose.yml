@@ -1,0 +1,39 @@
+# ============================================================================
+# Passerelle — environnement de démonstration conteneurisé (ENF-09, risque R3)
+# Trois services, conformes à l'architecture de déploiement (conception
+# générale v1.1, figure 2) : application PHP 8.3/Apache, MySQL 8.0, Mailpit.
+# Démarrage : docker compose up -d --build
+# Application : http://localhost:8000 — Boîte e-mails : http://localhost:8025
+# ============================================================================
+services:
+  app:
+    build: ./docker
+    image: pfe-passerelle-app
+    container_name: passerelle-app
+    ports:
+      - "8000:80"
+    volumes:
+      - ./passerelle:/var/www/html
+    depends_on:
+      - mysql
+      - mailpit
+
+  mysql:
+    image: mysql:8.0
+    container_name: passerelle-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root-dev
+      MYSQL_DATABASE: passerelle
+      MYSQL_USER: passerelle
+      MYSQL_PASSWORD: passerelle-dev
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: passerelle-mailpit
+    ports:
+      - "8025:8025"   # boîte de consultation web
+
+volumes:
+  mysql-data:
