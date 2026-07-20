@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EtablissementController as AdminEtablissementController;
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ConnexionController;
 use App\Http\Controllers\ConventionController;
@@ -40,6 +41,12 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'acces'])->group(function () {
     Route::post('/deconnexion', [ConnexionController::class, 'deconnecter'])->name('deconnexion');
     Route::get('/tableau-de-bord', [TableauDeBordController::class, 'index'])->name('tableau-de-bord');
+
+    // ------------------------------------------- Espace super-administrateur
+    Route::prefix('admin')->middleware('role:super_admin')->name('admin.')->group(function () {
+        Route::get('/etablissements', [AdminEtablissementController::class, 'index'])->name('etablissements');
+        Route::post('/etablissements', [AdminEtablissementController::class, 'creer'])->name('etablissements.creer');
+    });
 
     // -------------------------- Espace école (responsable d'établissement)
     Route::prefix('ecole')->middleware('role:responsable')->name('ecole.')->group(function () {

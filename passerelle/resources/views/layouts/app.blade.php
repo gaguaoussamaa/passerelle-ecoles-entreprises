@@ -35,6 +35,9 @@
                     <a href="{{ route('etudiant.convention') }}">Ma convention</a>
                     <a href="{{ route('etudiant.suivi') }}">Mon suivi</a>
                 @endif
+                @if (auth()->user()->role === 'super_admin')
+                    <a href="{{ route('admin.etablissements') }}">Établissements</a>
+                @endif
                 @if (auth()->user()->role === 'tuteur_pedagogique')
                     <a href="{{ route('tuteur.conventions') }}">Conventions</a>
                     <a href="{{ route('tuteur.suivi') }}">Suivi</a>

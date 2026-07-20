@@ -18,6 +18,8 @@
         @switch($compte->role)
             @case('responsable')
                 @php($etab = $profil->etablissement)
+                <div class="carte compteur"><span class="chiffre" style="font-size:1rem">{{ ucfirst($etab->plan_abonnement) }}</span> Mon abonnement
+                    <span class="a-venir">{{ $etab->debut_abonnement->format('d/m/Y') }} → {{ $etab->fin_abonnement->format('d/m/Y') }} (lecture seule)</span></div>
                 <div class="carte compteur"><span class="chiffre">{{ $etab->formations()->where('archivee', false)->count() }}</span> formation(s) active(s)</div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Promotion::whereHas('formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('archivee', false)->count() }}</span> promotion(s) active(s)</div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etudiant::whereHas('promotion.formation', fn ($q) => $q->where('etablissement_id', $etab->id))->where('statut_scolarite', 'actif')->count() }}</span> étudiant(s) actif(s)
@@ -53,7 +55,7 @@
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Mission::where('entreprise_id', $compte->id)->where('statut', 'contractualisee')->whereDate('date_fin', '<', now())->whereDoesntHave('evaluation')->count() }}</span> <a href="{{ route('entreprise.missions') }}">évaluation(s) à remplir</a></div>
                 @break
             @case('super_admin')
-                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etablissement::count() }}</span> établissement(s) actifs</div>
+                <div class="carte compteur"><span class="chiffre">{{ \App\Models\Etablissement::count() }}</span> <a href="{{ route('admin.etablissements') }}">établissement(s) actifs</a></div>
                 <div class="carte compteur"><span class="chiffre">{{ \App\Models\Compte::count() }}</span> compte(s) sur la plateforme</div>
                 @break
         @endswitch
