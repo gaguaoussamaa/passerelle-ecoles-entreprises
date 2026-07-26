@@ -24,8 +24,10 @@ body {
 .entete { background: var(--bleu); color: var(--blanc); }
 .entete-int {
     max-width: 1080px; margin: 0 auto; padding: 0.6rem 1rem;
-    display: flex; align-items: center; gap: 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem 1.2rem;
+    flex-wrap: wrap; /* sur écran étroit, la session passe à la ligne au lieu de déborder */
 }
+.courriel { overflow-wrap: anywhere; }
 .marque { font-weight: 700; font-size: 1.25rem; letter-spacing: 0.5px; }
 .nav a { color: var(--blanc); text-decoration: none; margin-right: 0.8rem; opacity: 0.9; }
 .nav a:hover { opacity: 1; text-decoration: underline; }
@@ -54,6 +56,7 @@ label { display: block; margin: 0.9rem 0 0.25rem; font-weight: 600; font-size: 0
 input, select, textarea {
     width: 100%; padding: 0.55rem 0.7rem; border: 1px solid var(--bord);
     border-radius: 6px; font-size: 1rem; background: var(--blanc);
+    font-family: inherit; /* sinon les textarea s'affichent en monospace et les champs en Arial */
 }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--bleu); border-color: var(--bleu); }
 
