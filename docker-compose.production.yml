@@ -1,0 +1,39 @@
+# ============================================================================
+# Passerelle — profil de PRODUCTION SIMULÉE (reproductible, testable).
+# NE PAS utiliser pour la démonstration : lancer via `bash demarrer-production.sh`.
+#
+# Se superpose au docker-compose.yml de base (même code, même image) et :
+#   - bascule l'application en mode production (APP_DEBUG=false → aucune trace
+#     d'exception exposée ; cookies de session « Secure » ; sessions chiffrées) ;
+#   - place un reverse-proxy Caddy en HTTPS (certificat auto-signé LOCAL) devant.
+#
+# Les variables d'environnement Docker priment sur le fichier .env (dotenv
+# n'écrase pas une variable déjà définie) : la démo locale (.env) reste intacte
+# dès qu'on relance `docker compose up -d` sans ce fichier.
+# ============================================================================
+services:
+  app:
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: "https://localhost:8443"
+      SESSION_SECURE_COOKIE: "true"
+      SESSION_ENCRYPT: "true"
+      LOG_LEVEL: warning
+
+  caddy:
+    image: caddy:2
+    container_name: passerelle-caddy
+    restart: unless-stopped
+    ports:
+      - "8443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy-data:
+  caddy-config:

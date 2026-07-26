@@ -105,6 +105,16 @@ class SecuriteTest extends TestCase
             ->assertHeader('Referrer-Policy', 'same-origin');
     }
 
+    public function test_hsts_uniquement_sur_canal_securise(): void
+    {
+        // En HTTP (démo locale), pas de HSTS.
+        $this->get('http://localhost/connexion')->assertHeaderMissing('Strict-Transport-Security');
+
+        // En HTTPS, HSTS présent.
+        $this->get('https://localhost/connexion')
+            ->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
+
     public function test_l_activation_exige_un_mot_de_passe_robuste(): void
     {
         // 11 caractères : rejeté par la règle de longueur (≥ 12).

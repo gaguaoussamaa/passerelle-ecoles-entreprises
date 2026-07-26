@@ -1,0 +1,16 @@
+# Reverse-proxy HTTPS pour la PRODUCTION SIMULÉE (voir demarrer-production.sh).
+# TLS servi par une autorité INTERNE à Caddy (certificat auto-signé local) :
+# aucun ACME, aucun certificat public, aucun accès réseau externe requis.
+{
+	auto_https disable_redirects
+	admin off
+}
+
+localhost {
+	tls internal
+	encode gzip
+	reverse_proxy app:80 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {host}
+	}
+}
