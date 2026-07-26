@@ -105,16 +105,22 @@ class SecuriteTest extends TestCase
             ->assertHeader('Referrer-Policy', 'same-origin');
     }
 
-    public function test_l_activation_exige_un_mot_de_passe_de_12_caracteres(): void
+    public function test_l_activation_exige_un_mot_de_passe_robuste(): void
     {
-        // 11 caractères : rejeté par la règle min:12 (avant même la recherche du jeton).
+        // 11 caractères : rejeté par la règle de longueur (≥ 12).
         $this->post('/activation', [
             'jeton' => 'jeton-inexistant',
             'mot_de_passe' => 'onze1234567', 'mot_de_passe_confirmation' => 'onze1234567',
         ])->assertSessionHasErrors('mot_de_passe');
 
-        // 12 caractères : la validation du mot de passe passe ; l'échec porte alors sur
-        // le jeton (erreur « email »), ce qui prouve que la règle min:12 est franchie.
+        // 12 caractères mais SANS chiffre : rejeté par la règle de composition (lettres + chiffres).
+        $this->post('/activation', [
+            'jeton' => 'jeton-inexistant',
+            'mot_de_passe' => 'abcdefghijkl', 'mot_de_passe_confirmation' => 'abcdefghijkl',
+        ])->assertSessionHasErrors('mot_de_passe');
+
+        // 12 caractères, lettres ET chiffres : la validation du mot de passe passe ; l'échec
+        // porte alors sur le jeton (erreur « email »), ce qui prouve la règle franchie.
         $reponse = $this->post('/activation', [
             'jeton' => 'jeton-inexistant',
             'mot_de_passe' => 'douze1234567', 'mot_de_passe_confirmation' => 'douze1234567',

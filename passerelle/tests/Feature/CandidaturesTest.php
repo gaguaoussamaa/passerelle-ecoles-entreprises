@@ -97,6 +97,22 @@ class CandidaturesTest extends TestCase
         ]);
     }
 
+    public function test_le_depot_de_cv_refuse_les_fichiers_non_pdf_ou_trop_gros(): void
+    {
+        // Mauvaise extension / mauvais type → rejeté (règle mimes:pdf).
+        $this->actingAs($this->cible)->post('/candidatures/cv', [
+            'cv' => UploadedFile::fake()->create('cv.txt', 10),
+        ])->assertSessionHasErrors('cv');
+
+        // PDF trop volumineux (> 2 Mo) → rejeté (règle max:2048).
+        $this->actingAs($this->cible)->post('/candidatures/cv', [
+            'cv' => UploadedFile::fake()->create('gros.pdf', 3000),
+        ])->assertSessionHasErrors('cv');
+
+        // Aucun CV n'a été enregistré pour l'étudiant.
+        $this->assertNull($this->cible->etudiant->fresh()->cv_profil);
+    }
+
     public function test_depot_avec_copie_du_cv_et_notification_entreprise(): void
     {
         $this->deposerCv($this->cible);

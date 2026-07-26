@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\InvitationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class ActivationController extends Controller
@@ -26,8 +27,11 @@ class ActivationController extends Controller
     {
         $donnees = $request->validate([
             'jeton' => ['required', 'string'],
-            // RG-04 — ≥ 12 caractères (CNIL 2022 / longueur privilégiée à la composition, NIST 800-63B).
-            'mot_de_passe' => ['required', 'string', 'min:12', 'confirmed'],
+            // RG-04 — mot de passe robuste : ≥ 12 caractères avec lettres ET chiffres.
+            // Combiné à la limitation des tentatives (ConnexionController), cela dépasse le
+            // seuil CNIL 2022 de 50 bits d'entropie applicable « avec mesure de restriction
+            // d'accès » (délib. 2022-100) ; la vérification anti-fuite HIBP reste pour la prod.
+            'mot_de_passe' => ['required', 'confirmed', Password::min(12)->letters()->numbers()],
         ]);
 
         $invitation = $this->invitations->valider($donnees['jeton']);

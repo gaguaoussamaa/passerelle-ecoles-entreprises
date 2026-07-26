@@ -47,6 +47,8 @@ class ConnexionController extends Controller
         // Un seul message pour e-mail inconnu ET mot de passe faux (anti-énumération, OWASP A07).
         if (! Auth::attempt(['email' => $identifiants['email'], 'password' => $identifiants['mot_de_passe']])) {
             RateLimiter::hit($cle, self::FENETRE_SECONDES);
+            // Journal de sécurité (OWASP A09) : identifiant soumis + IP, jamais le mot de passe.
+            Log::notice('Connexion : échec', ['email' => $identifiants['email'], 'ip' => $request->ip()]);
 
             return back()->withErrors(['email' => self::MESSAGE_ECHEC])->onlyInput('email');
         }
