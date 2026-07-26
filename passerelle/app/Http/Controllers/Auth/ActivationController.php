@@ -26,7 +26,8 @@ class ActivationController extends Controller
     {
         $donnees = $request->validate([
             'jeton' => ['required', 'string'],
-            'mot_de_passe' => ['required', 'string', 'min:10', 'confirmed'], // RG-04
+            // RG-04 — ≥ 12 caractères (CNIL 2022 / longueur privilégiée à la composition, NIST 800-63B).
+            'mot_de_passe' => ['required', 'string', 'min:12', 'confirmed'],
         ]);
 
         $invitation = $this->invitations->valider($donnees['jeton']);

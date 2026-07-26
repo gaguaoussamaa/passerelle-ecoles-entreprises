@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\VerifierRole::class,
             'acces' => \App\Http\Middleware\VerifierAcces::class,
         ]);
+        // En-têtes de sécurité HTTP sur toutes les réponses web (OWASP A05).
+        $middleware->web(append: [\App\Http\Middleware\EntetesSecurite::class]);
         $middleware->redirectGuestsTo(fn () => route('connexion'));
         $middleware->redirectUsersTo(fn () => route('tableau-de-bord'));
     })
