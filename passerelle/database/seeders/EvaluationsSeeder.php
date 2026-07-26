@@ -9,6 +9,7 @@ use App\Models\Jalon;
 use App\Models\Mission;
 use App\Models\TuteurEntreprise;
 use App\Models\VersionConvention;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 
@@ -48,7 +49,9 @@ class EvaluationsSeeder extends Seeder
             'date_debut' => $debut, 'date_fin' => $fin, 'statut' => 'contractualisee',
         ]);
 
-        $pdf = "%PDF-1.4\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF";
+        // vrai PDF dompdf archivé (même génération que ConventionService)
+        $modele = $mission->type === 'stage' ? 'pdf.convention-stage' : 'pdf.dossier-alternance';
+        $pdf = Pdf::loadView($modele, ['mission' => $mission, 'numero' => 1])->output();
         Storage::put($chemin = 'conventions/'.$mission->id.'/v1.pdf', $pdf);
         $version = VersionConvention::create([
             'mission_id' => $mission->id, 'numero' => 1,
@@ -77,8 +80,14 @@ class EvaluationsSeeder extends Seeder
             if ($jalon->is($dernier)) {
                 continue;                                                   // non rendu → consigné à la clôture
             }
+            // rapport = vrai PDF (dompdf) réellement ouvrable, comme un document déposé par l'étudiant
             Storage::put($f = 'rapports/'.$mission->id.'/jalon-'.$jalon->id.'.pdf',
-                "%PDF-1.4\n% rapport de demonstration\ntrailer << >>\n%%EOF");
+                Pdf::loadHTML(
+                    '<h2>Rapport de suivi mensuel — jalon n°'.($i + 1).'</h2>'
+                    .'<p><strong>Stage — '.$paul->prenom.' '.$paul->nom.' chez TechNova</strong></p>'
+                    .'<p>Période couverte, activités réalisées et objectifs du mois. '
+                    .'Document de démonstration.</p>'
+                )->output());
             $jalon->update(['fichier_depose' => $f, 'date_depot' => $jalon->date_echeance->copy()->subDay()->setTime(16, 0)]);
         }
     }

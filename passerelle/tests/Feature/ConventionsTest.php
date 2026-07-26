@@ -130,7 +130,12 @@ class ConventionsTest extends TestCase
         $this->assertSame('emise', $version->statut);
         Storage::assertExists($version->fichier_pdf);
         $pdf = Storage::get($version->fichier_pdf);
+        // PDF réellement ouvrable, pas un stub dégénéré : signature + table de références
+        // (startxref) + fin de fichier + taille cohérente avec un rendu réel.
         $this->assertStringStartsWith('%PDF', $pdf);
+        $this->assertStringContainsString('startxref', $pdf);
+        $this->assertStringContainsString('%%EOF', rtrim($pdf));
+        $this->assertGreaterThan(1000, strlen($pdf));
         $this->assertSame(hash('sha256', $pdf), $version->empreinte);              // empreinte fidèle
     }
 

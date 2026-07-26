@@ -10,6 +10,7 @@ use App\Models\Mission;
 use App\Models\Signalement;
 use App\Models\TuteurEntreprise;
 use App\Models\VersionConvention;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,8 +50,10 @@ class SuiviSeeder extends Seeder
             'date_debut' => $debut, 'date_fin' => $fin, 'statut' => 'contractualisee',
         ]);
 
-        // convention v1 approuvée : PDF archivé + historique complet des 8 actions
-        $pdf = "%PDF-1.4\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF";
+        // convention v1 approuvée : vrai PDF dompdf archivé (même génération que ConventionService)
+        // + historique complet des 8 actions
+        $modele = $mission->type === 'stage' ? 'pdf.convention-stage' : 'pdf.dossier-alternance';
+        $pdf = Pdf::loadView($modele, ['mission' => $mission, 'numero' => 1])->output();
         $chemin = 'conventions/'.$mission->id.'/v1.pdf';
         Storage::put($chemin, $pdf);
         $version = VersionConvention::create([
@@ -65,7 +68,13 @@ class SuiviSeeder extends Seeder
         }
 
         // échéancier ancré sur les dates (RG-38) : rendu, rendu tardif, EN RETARD, à venir
-        $rapport = static fn (int $n): string => "%PDF-1.4\n% rapport de demonstration $n\ntrailer << >>\n%%EOF";
+        // rapport = vrai PDF (dompdf) réellement ouvrable, comme un document déposé par l'étudiant
+        $rapport = fn (int $n): string => Pdf::loadHTML(
+            '<h2>Rapport de suivi mensuel — jalon n°'.$n.'</h2>'
+            .'<p><strong>Alternance — '.$linh->prenom.' '.$linh->nom.' chez Studio Kumo</strong></p>'
+            .'<p>Période couverte, activités réalisées et objectifs du mois. '
+            .'Document de démonstration.</p>'
+        )->output();
         $echeance = $debut->copy()->addMonthNoOverflow();
         $numero = 0;
         while ($echeance->lte($fin)) {
