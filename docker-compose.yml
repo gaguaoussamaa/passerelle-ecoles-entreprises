@@ -1,7 +1,7 @@
 # ============================================================================
 # Passerelle — environnement de démonstration conteneurisé (ENF-09, risque R3)
 # Trois services, conformes à l'architecture de déploiement (conception
-# générale v1.1, figure 2) : application PHP 8.3/Apache, MySQL 8.0, Mailpit.
+# générale v1.1, figure 2) : application PHP 8.4/Apache, MySQL 8.0, Mailpit.
 # Démarrage : docker compose up -d --build
 # Application : http://localhost:8000 — Boîte e-mails : http://localhost:8025
 # ============================================================================

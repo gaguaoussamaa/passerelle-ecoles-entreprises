@@ -7,6 +7,3 @@ passerelle/storage/logs/*.log
 passerelle/storage/framework/cache/data/*
 passerelle/storage/framework/sessions/*
 passerelle/storage/framework/views/*.php
-outils/build/node_modules/
-outils/plantuml.jar
-outils/venv-mocodo/

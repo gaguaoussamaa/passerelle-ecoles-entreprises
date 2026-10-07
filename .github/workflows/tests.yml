@@ -1,0 +1,51 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    # Les tests s'exécutent sur une vraie base MySQL : les contraintes du schéma
+    # (CHECK, unicités, clés étrangères) font partie du comportement testé.
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: passerelle_test
+          MYSQL_USER: passerelle
+          MYSQL_PASSWORD: passerelle-dev
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    defaults:
+      run:
+        working-directory: passerelle
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, intl, zip, mbstring, dom, gd
+          coverage: none
+
+      - name: Dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Configuration
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Tests PHPUnit
+        env:
+          DB_HOST: 127.0.0.1
+        run: php artisan test
