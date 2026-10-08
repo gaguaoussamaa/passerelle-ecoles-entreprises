@@ -2,21 +2,11 @@
 
 [![Tests](https://github.com/gaguaoussamaa/passerelle-ecoles-entreprises/actions/workflows/tests.yml/badge.svg)](https://github.com/gaguaoussamaa/passerelle-ecoles-entreprises/actions/workflows/tests.yml)
 
-Application web complète en **PHP 8.4 / Laravel 13 / MySQL 8**. Elle relie une école, ses étudiants et les entreprises partenaires sur tout le cycle d'un stage ou d'une alternance : offres, candidatures, convention, suivi et évaluation.
+Application web en **PHP 8.4 / Laravel 13 / MySQL 8**. Elle relie une école, ses étudiants et les entreprises partenaires sur tout le cycle d'un stage ou d'une alternance : offres, candidatures, convention, suivi et évaluation.
 
-> Projet de fin d'études individuel (Master 2 « Expert en développement et gestion de projets informatiques », 2026), mené du cahier des charges jusqu'à une version déployable. Ce dépôt contient le code de l'application et sa documentation technique. Les livrables académiques (mémoire, support de soutenance) n'en font pas partie.
+> Projet de fin d'études individuel (Master 2, 2026). Le dépôt contient le code et la documentation technique ; les livrables académiques n'en font pas partie.
 
 ![Côté responsable d'école : une mission avec sa convention approuvée et son suivi](docs/capture-suivi-mission.png)
-
-## Le problème
-
-Dans une école, un stage passe par beaucoup de mains :
-- l'école valide les offres ;
-- l'étudiant postule et l'entreprise choisit ;
-- une convention doit ensuite être approuvée par plusieurs parties ;
-- le suivi comporte des jalons, des rapports et une évaluation finale.
-
-Tout cela vit souvent dans des e-mails et des tableurs. Passerelle réunit ces étapes dans une seule application, où chaque acteur a ses propres droits.
 
 ## Ce que fait l'application
 
@@ -133,7 +123,3 @@ bash demarrer-production.sh
 - **Pas encore de politique CSP stricte** : il faudrait d'abord retirer quelques gestionnaires d'événements et styles écrits en ligne.
 - **Interface volontairement simple** (Blade et CSS, sans framework front).
 - **Déploiement** : la production est simulée en local. Un vrai déploiement demanderait un certificat public, des sauvegardes et une messagerie réelle.
-
-## Auteur
-
-**Oussama Gagua** — développeur full stack (PHP, Python, JavaScript, API et intégrations, ERP / Odoo) · [LinkedIn](https://www.linkedin.com/in/oussama-gagua)
